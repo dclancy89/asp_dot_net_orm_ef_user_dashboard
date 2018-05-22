@@ -26,7 +26,7 @@ namespace UserDashboard
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-            services.AddDbContext<MyContext>(options => options.UseNpgsql(Configuration["DBInfo:ConnectionString"]));
+            services.AddDbContext<UDContext>(options => options.UseNpgsql(Configuration["DBInfo:ConnectionString"]));
             services.AddMvc();
             services.AddSession();
         }
