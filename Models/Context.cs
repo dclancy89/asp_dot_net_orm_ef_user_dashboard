@@ -6,7 +6,7 @@ namespace UserDashboard.Models
     {
         public UDContext(DbContextOptions<UDContext> options) : base(options) {}
 
-        public DbSet<User> Customers { get; set; }
+        public DbSet<User> Users { get; set; }
         
     }
 }

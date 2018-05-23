@@ -4,11 +4,19 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using UserDashboard.Models;
+using System.Linq;
+using Microsoft.AspNetCore.Identity;
 
 namespace UserDashboard.Controllers
 {
     public class HomeController : Controller
     {
+        private UDContext _context;
+
+        public HomeController(UDContext context)
+        {
+            _context = context;
+        }
         // GET: /Home/
         [HttpGet]
         [Route("")]
@@ -30,7 +38,23 @@ namespace UserDashboard.Controllers
         {
             if(ModelState.IsValid)
             {
-                
+                PasswordHasher<User> hasher = new PasswordHasher<User>();
+                User myUser = _context.Users.SingleOrDefault(User => User.Email == user.Email);
+                if(myUser != null)
+                {
+                    if(hasher.VerifyHashedPassword(myUser, myUser.Password, user.Password) == PasswordVerificationResult.Success)
+                    {
+                        HttpContext.Session.SetInt32("id", myUser.Id);
+                        return RedirectToAction("Index", "Dashboard");
+                    }
+                    else {
+                        TempData["Login Error"] = "Incorrect Password";
+                    }
+                }
+                else 
+                {
+                    TempData["Login Error"] = "This user does not exist.";
+                }
             }
             else
             {
@@ -41,9 +65,8 @@ namespace UserDashboard.Controllers
                         TempData[error.ErrorMessage] = error.ErrorMessage;
                     }
                 }
-                return RedirectToAction("Signin");
             }
-            return RedirectToAction("Index");
+            return RedirectToAction("Signin");
         }
 
         [HttpGet]
@@ -58,9 +81,38 @@ namespace UserDashboard.Controllers
         [Route("user/new")]
         public IActionResult RegisterUser(RegisterViewModel user)
         {
-
+            // Check for Form Validation
             if(ModelState.IsValid)
             {
+                if(_context.Users.SingleOrDefault(User => User.Email == user.Email) == null)
+                {
+                    PasswordHasher<User> hasher = new PasswordHasher<User>();
+                    User newUser = new User
+                    {
+                        Email = user.Email,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        UserLevel = 1,
+                        Description = "None",
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now
+                    };
+                    newUser.Password = hasher.HashPassword(newUser, user.Password);
+
+                    User myUser = _context.Users.Add(newUser).Entity;
+                    if(myUser.Id == 1)
+                    {
+                        myUser.UserLevel = 10;
+                    }
+                    _context.SaveChanges();
+
+                    HttpContext.Session.SetInt32("id", myUser.Id);
+
+                }
+                else {
+                    TempData["Duplicate User Error"] = "This user already exists";
+                    return RedirectToAction("Register");
+                }
                 
             }
             else
