@@ -21,8 +21,6 @@ namespace UserDashboard.Controllers
             _context = context;
         }
 
-        
-    
         [HttpGet]
         [Route("dashboard")]
         public IActionResult Index()
@@ -31,6 +29,8 @@ namespace UserDashboard.Controllers
             {
                 return RedirectToAction("Index", "Home");
             }
+            ViewBag.User = ActiveUser;
+            ViewBag.AllUsers = _context.Users.ToList();
             return View();
         }
     }

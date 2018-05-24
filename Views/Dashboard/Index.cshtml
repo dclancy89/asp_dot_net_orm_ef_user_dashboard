@@ -1,1 +1,42 @@
-<h1>Hello</h1>
+<h1>Hello @ViewBag.User.FirstName</h1>
+<p>User Level: @ViewBag.User.UserLevel</p>
+
+<h3>Users</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Created At</th>
+            <th>User Level</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(User user in @ViewBag.AllUsers)
+        {
+            <tr>
+                <td>@user.Id</td>
+                <td>@user.FirstName @user.LastName</td>
+                <td>@user.Email</td>
+                <td>@user.CreatedAt</td>
+                
+                    @if(user.UserLevel == 10)
+                    {
+                        <td>Super Admin</td>
+                    }
+                    else if (user.UserLevel == 9)
+                    {
+                        <td>Admin</td>
+                    }
+                    else
+                    {
+                        <td>Standard</td>
+                    }
+                
+                <td></td>
+            </tr>
+        }
+    </tbody>
+</table>
